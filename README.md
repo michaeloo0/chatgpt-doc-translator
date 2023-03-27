@@ -16,6 +16,11 @@ To install the dependencies for this project, you'll need to have Poetry install
 Once you have Poetry installed, you can install the dependencies for this project by running the following command in the project directory:
 
 bash
+
+`poetry use env python3.11`
+
+`poetry shell`
+
 `poetry install`
 ## Usage
 To use the service, simply run the following command in the project directory:
