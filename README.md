@@ -17,7 +17,7 @@ Once you have Poetry installed, you can install the dependencies for this projec
 
 bash
 
-`poetry use env python3.11`
+`poetry env use python3.11`
 
 `poetry shell`
 
