@@ -50,9 +50,8 @@ To translate a document, send a POST request to the /translate endpoint with the
 bash
 ```
 curl --request POST \
-  --url http://localhost:8000/translate \
-  --header 'Authorization: Bearer #'  \
-  --form 'file=@/path/to/document.pdf'
+  --url http://localhost:8000/translate-file_zh \
+  --form 'file=@/Users/michael/Desktop/translate-test.pdf'
 ```
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.

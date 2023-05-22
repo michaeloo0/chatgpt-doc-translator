@@ -29,10 +29,10 @@ app = FastAPI()
 # app.mount("/.well-known", StaticFiles(directory=".well-known"), name="static")
 
 
-def validate_token(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
-    if credentials.scheme != "Bearer" or credentials.credentials != BEARER_TOKEN:
-        raise HTTPException(status_code=401, detail="Invalid or missing token")
-    return credentials
+# def validate_token(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
+#     if credentials.scheme != "Bearer" or credentials.credentials != BEARER_TOKEN:
+#         raise HTTPException(status_code=401, detail="Invalid or missing token")
+#     return credentials
 
 
 @app.post(
@@ -41,11 +41,16 @@ def validate_token(credentials: HTTPAuthorizationCredentials = Depends(bearer_sc
 )
 async def translate_file_zh(
     file: UploadFile = File(...),
-    token: HTTPAuthorizationCredentials = Depends(validate_token),
+    # token: HTTPAuthorizationCredentials = Depends(validate_token),
 ):
     #
     EN_ZH = os.environ.get("EN_ZH")
-    document = await get_document_from_file(file)
+    try:
+        document = await get_document_from_file(file)
+    except FileExistsError:
+        print("Error:", e)
+        raise HTTPException(status_code=500, detail=f"str({e})")
+    
     text = document.text
     splitter = text_splitter()
     chunks = splitter.split_text(text)
@@ -57,12 +62,6 @@ async def translate_file_zh(
     except Exception as e:
         print("Error:", e)
         raise HTTPException(status_code=500, detail=f"str({e})")
-
-# @app.on_event("startup")
-# async def startup():
-#     # global datastore
-#     # datastore = await get_datastore()
-#     pass
 
 
 def start():
