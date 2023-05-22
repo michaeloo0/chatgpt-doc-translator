@@ -1,6 +1,7 @@
 #### Welcome to chat with me 
-<img src="https://github.com/michaeloo0/chatgpt-doc-translator/assets/9064824/01c16b25-ab55-4c78-96e9-97277bd34e25
-"  width="300" height="300">
+<img src="https://github.com/michaeloo0/chatgpt-doc-translator/assets/9064824/01c16b25-ab55-4c78-96e9-97277bd34e25" width="300" height="400">
+<br>
+
 # Document Translation Service (drafted by chatGPT)
 This is a web service that enables translation of various types of documents. The service is built using FastAPI and OpenAI's GPT-3.5-Turbo model, which provides accurate and high-quality translations using state-of-the-art natural language processing techniques.
 
