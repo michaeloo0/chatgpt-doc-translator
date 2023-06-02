@@ -1,43 +1,22 @@
 import os 
-import openai
-from dotenv import load_dotenv
 from typing import List
-from models.models import Document, TranslateResult
-from tenacity import retry, wait_random_exponential, stop_after_attempt
-load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
-openai.organization = os.getenv("OPENAI_ORG") 
-model = os.getenv("OPENAI_MODEL") 
+from dotenv import load_dotenv, find_dotenv
+from models.models import Document, TranslateResult, ApiType, TranslateType
+from services.utils.interact_llm import call_openai
 
-# @retry(wait=wait_random_exponential(min=1, max=20), stop=stop_after_attempt(3))
-def get_translate_results(texts: List[Document], target: str) -> List[List[str]]:
-    """
-    Embed texts using OpenAI's ada model.
+_ = load_dotenv(find_dotenv()) # read local .env file
 
-    Args:
-        texts: The list of texts to embed.
 
-    Returns:
-        A list of embeddings, each of which is a list of floats.
-
-    Raises:
-        Exception: If the OpenAI API call fails.
-    """
-    # Call the OpenAI API to get the embeddings
-    results = []
+async def get_translate_results(texts: List[Document], translate_type:str, api_type: str) -> List[TranslateResult]:
     
+    results = []
+    sys_prompt = os.environ[translate_type.upper()]
     for text in texts:
-        messages = [{"role": "system", "content": target}]
-        user_messaeg = {"role": "user", "content": text.text}
-        messages.append(user_messaeg) 
-        response = openai.ChatCompletion.create(
-            model=model,
-            messages=messages
-        )
-        choices = response["choices"]  # type: ignore
-        completion = choices[0].message.content.strip()
-        result = TranslateResult(original_content=text.text, translated_content=completion)
-        results.append(result)
+        response = await call_openai(sys_prompt=sys_prompt, user_prompt=text.text, api_type=api_type)
+        if response:
+            choices = response["choices"] 
+            completion = choices[0].message.content.strip()
+            result = TranslateResult(original_content=text.text, translated_content=completion)
+            results.append(result)
       
-    # Return the embeddings as a list of lists of floats
     return results

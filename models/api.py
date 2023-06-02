@@ -4,5 +4,10 @@ from models.models import (
 from pydantic import BaseModel
 from typing import List, Optional
 
+
 class TranslateResponse(BaseModel):
     results: List[TranslateResult]
+  
+
+class TranslatedFileResponse(BaseModel):
+    result: str

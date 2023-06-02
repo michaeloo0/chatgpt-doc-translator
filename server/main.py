@@ -1,68 +1,97 @@
 import os
 import uvicorn
-from dotenv import load_dotenv
-from fastapi import FastAPI, File, HTTPException, Depends, Body, UploadFile
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from fastapi.staticfiles import StaticFiles
-from services.file import get_document_from_file
+
+from fastapi import FastAPI, File, HTTPException, Depends, Body, UploadFile,Response, status
+from services.utils.process_file import get_document_from_file
+from services.utils.generate_pdf import generate_pdf
 from services.translate import get_translate_results
-from services.split_text import text_splitter
+from services.utils.split_text import text_splitter
+
+from dotenv import load_dotenv, find_dotenv
+_ = load_dotenv(find_dotenv()) # read local .env file
+file_folder = os.environ['FILE_FOLDER']
+
 from models.models import (
   Document
 )
-
 from models.api import (
-  TranslateResponse
-    # QueryRequest,
-    # QueryResponse,
+  TranslateResponse,
+  TranslatedFileResponse
 )
-load_dotenv()
-
-
-# 
-bearer_scheme = HTTPBearer()
-BEARER_TOKEN = os.environ.get("BEARER_TOKEN")
-assert BEARER_TOKEN is not None
 
 
 app = FastAPI()
-# app.mount("/.well-known", StaticFiles(directory=".well-known"), name="static")
-
-
-# def validate_token(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
-#     if credentials.scheme != "Bearer" or credentials.credentials != BEARER_TOKEN:
-#         raise HTTPException(status_code=401, detail="Invalid or missing token")
-#     return credentials
-
 
 @app.post(
-    "/translate-file_zh",
+    "/translate-file",
     response_model=TranslateResponse,
 )
-async def translate_file_zh(
+async def translate_file(
     file: UploadFile = File(...),
-    # token: HTTPAuthorizationCredentials = Depends(validate_token),
+    api_type: str = Body(...),
+    translate_type: str = Body(...)
 ):
-    #
-    EN_ZH = os.environ.get("EN_ZH")
     try:
         document = await get_document_from_file(file)
-    except FileExistsError:
-        print("Error:", e)
-        raise HTTPException(status_code=500, detail=f"str({e})")
-    
-    text = document.text
+    except Exception:
+        raise e
+   
     splitter = text_splitter()
-    chunks = splitter.split_text(text)
+    chunks = splitter.split_text(document.text)
     documents = [Document(text=chunk) for chunk in chunks]
+    
     try:
-        results = get_translate_results(documents, EN_ZH)
+        results = await get_translate_results(documents, translate_type=translate_type, api_type=api_type)
         return TranslateResponse(results=results)
     
     except Exception as e:
-        print("Error:", e)
+
         raise HTTPException(status_code=500, detail=f"str({e})")
 
+@app.post(
+    "/translate-file-download",
+    response_model=TranslatedFileResponse,
+)
+async def translate_file(
+    file: UploadFile = File(...),
+    api_type: str = Body(...),
+    translate_type: str = Body(...)
+):
+    try:
+        document = await get_document_from_file(file)
+    except Exception:
+        raise e
+   
+    splitter = text_splitter()
+    chunks = splitter.split_text(document.text)
+    documents = [Document(text=chunk) for chunk in chunks]
+    
+    try:
+        results = await get_translate_results(documents, translate_type=translate_type, api_type=api_type)
+        download_link = await generate_pdf(results)
+        return TranslatedFileResponse(result=download_link)
+    
+    except Exception as e:
 
+        raise HTTPException(status_code=500, detail=f"str({e})")
+
+@app.get("/download-file/{token}")
+async def serve_text_file(token: str):
+    # Check if the file exists
+    if os.path.exists(f"{file_folder}/{token}.txt"):
+        # Set the response headers
+        headers = {
+            "Content-Type": "text/plain",
+            "Content-Disposition": f"attachment; filename={token}.txt",
+        }
+
+        # Return the file contents as a response with the headers set
+        with open(f"{file_folder}/{token}.txt", "rb") as f:
+            contents = f.read()
+            return Response(content=contents, status_code=status.HTTP_200_OK, headers=headers)
+    else:
+        # Return a 404 error if the file does not exist
+        return Response(status_code=status.HTTP_404_NOT_FOUND)
+    
 def start():
     uvicorn.run("server.main:app", host="0.0.0.0", port=8000, reload=True)

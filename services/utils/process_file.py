@@ -1,4 +1,5 @@
 import os
+from fastapi import HTTPException
 from io import BufferedReader
 from typing import Optional
 from fastapi import UploadFile
@@ -95,21 +96,21 @@ async def extract_text_from_form_file(file: UploadFile):
     file_stream = await file.read()
 
     hash_code = hashlib.sha256(file_stream).hexdigest()
-
+    
+    if not os.path.exists("./temp_files/"):
+        os.makedirs("./temp_files/")
+        print("Temporary Folder created successfully!")
+        
     temp_file_path = f"./temp_files/{hash_code}"
-
-    # write the file to a temporary locatoin
-    with open(temp_file_path, "wb") as f:
-        f.write(file_stream)
-
+    
     try:
+        with open(temp_file_path, "wb") as f:
+            f.write(file_stream)
         extracted_text = extract_text_from_filepath(temp_file_path, mimetype)
+        
     except Exception as e:
-        print(f"Error: {e}")
-        os.remove(temp_file_path)
         raise e
 
-    # remove file from temp location
     os.remove(temp_file_path)
 
     return extracted_text
