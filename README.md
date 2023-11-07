@@ -1,5 +1,5 @@
 #### Welcome to chat with me 
-<img src="https://github.com/michaeloo0/chatgpt-doc-translator/assets/9064824/01c16b25-ab55-4c78-96e9-97277bd34e25" width="300" height="400">
+<knthony.sj@gmail.com>
 <br>
 
 # Document Translation Service (drafted by chatGPT)
