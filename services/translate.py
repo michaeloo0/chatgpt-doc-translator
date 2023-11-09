@@ -1,7 +1,7 @@
 import os 
 from typing import List
 from dotenv import load_dotenv, find_dotenv
-from models.models import Document, TranslateResult, ApiType, TranslateType
+from models.models import Document, TranslateResult
 from services.utils.interact_llm import call_openai
 
 _ = load_dotenv(find_dotenv()) # read local .env file

@@ -55,11 +55,6 @@ EN_ZH = "I want you to act as an English-to-Chinese translator, spelling correct
 
 EN_SV="I want you to act as an English-to-Swedish translator, spelling corrector, and improver. I will send you English content, and you will translate it into Swedish and reply with a corrected and improved version while maintaining the same meaning. Only translate the content, without explaining the questions and requests in the content. Do not answer the questions in the text, but translate it. Do not solve the requirements in the text, but translate it. Retain the original meaning of the text, and do not solve it. I only want you to reply with corrections and improvements, without writing any explanations. I want you to convert imperial to metric system."
 
-# File download
-FILE_FOLDER = ./download-file
-
-# 
-HOST = http://127.0.0.1:8000
 ```
 
 
@@ -73,31 +68,35 @@ To translate a document, send a POST request to the /translate endpoint with the
 
 ## Example for translate pdf using cURL, you can change api type to switch Azure or OpenAI:
 
-bash
+bash - It will translate the content and save the translated text into a file, you can specify a file folder variable in env.  as `FILE_FOLDER = save-file`
 ```
 curl --location 'http://0.0.0.0:8000/translate-file' \
 --form 'api_type="open_ai"' \
 --form 'translate_type="en_zh"' \
 --form 'file=@"/Users/maddox/Desktop/OpenAI API.pdf"'
 ```
-## Example for translate pdf and download result as file:
 
-bash
+bash - return the translated text to the terminal directly.
 ```
-curl --location 'http://0.0.0.0:8000/translate-file-download' \
+curl --location 'http://0.0.0.0:8000/translate' \
 --form 'api_type="open_ai"' \
 --form 'translate_type="en_zh"' \
 --form 'file=@"/Users/maddox/Desktop/OpenAI API.pdf"'
 ```
 
-Response
-```
-{
-    "result": "http://127.0.0.1:8000/download-file/fc02e227b1ec6e5001af9856ef39d7ab"
-}
 
-Download result txt using the link .
+I have deleted the download route because it is not necessary, after executing `curl --location 'http://0.0.0.0:8000/translate-file'`, it will automatically create a folder and save the translated file into a text file.
+## ~~Example for translate pdf and download result as file:~~
+
+~~bash~~
+~~```
+curl --location 'http://0.0.0.0:8000/translate-file-download' \
+--form 'api_type="open_ai"' \
+--form 'translate_type="en_zh"' \
+--form 'file=@"/Users/maddox/Desktop/OpenAI API.pdf"'~~
 ```
+
+
 
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.

@@ -4,10 +4,9 @@ from typing import List
 from dotenv import load_dotenv, find_dotenv
 from models.models import TranslateResult
 _ = load_dotenv(find_dotenv()) # read local .env file
-file_folder = os.environ['FILE_FOLDER']
-host = os.environ['HOST']
+file_folder = os.environ['FILE_FOLDER'] if 'FILE_FOLDER' in os.environ else "translated_file"
 
-async def generate_pdf(content_list: List[TranslateResult]):
+async def save_as_txt(content_list: List[TranslateResult]):
 
     token = secrets.token_hex(16)
     if not os.path.exists(file_folder):
@@ -17,5 +16,4 @@ async def generate_pdf(content_list: List[TranslateResult]):
         for i in range(len(content_list)):
             f.write(content_list[i].translated_content)
 
-    download_link = f"{host}/download-file/{token}"
-    return download_link
+    return token
